@@ -4,7 +4,6 @@
             [honey.sql :as sql]
             [honey.sql.helpers :as h]))
 
-(h/insert-into)
 (deftest insert-ignore-into-test
   (testing "INSERT IGNORE INTO sql generation for mysql"
     (is (= ["INSERT IGNORE INTO some_table (col1, col2) VALUES (?, ?), (?, ?)" 1 2 3 4]
