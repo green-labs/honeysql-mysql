@@ -1,6 +1,8 @@
 (ns honeysql-mysql.helpers
-  (:require [honeysql-mysql.format]
-            [honeysql.helpers :as h :refer [defhelper]]))
+  (:require [honeysql-mysql.format :as fmt]
+            [honey.sql :as sql]
+            [honey.sql.helpers :as h]))
 
-(defhelper insert-ignore-into [m fields]
-  (assoc m :insert-ignore-into (first fields)))
+(defn insert-ignore-into
+  [& args]
+  (h/generic-helper-variadic :insert-ignore-into args))
