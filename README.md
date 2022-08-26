@@ -19,3 +19,8 @@ MySQL extensions for [honeysql](https://github.com/seancorfield/honeysql)
                 (h/values [[1 2] [3 4]])))
 ;; => ["INSERT IGNORE INTO some_table (col1, col2) VALUES (?, ?), (?, ?)" 1 2 3 4]
 ```
+
+## Run tests
+```bash
+clj -X:test
+```
