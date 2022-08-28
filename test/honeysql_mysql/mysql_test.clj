@@ -1,8 +1,13 @@
 (ns honeysql-mysql.mysql-test
   (:require [clojure.test :refer [deftest run-tests is testing]]
+            [honeysql-mysql.format :refer [extend-syntax!]]
             [honeysql-mysql.helpers :as mysql-h]
             [honey.sql :as sql]
             [honey.sql.helpers :as h]))
+
+(clojure.test/use-fixtures :once (fn [f]
+                                   (extend-syntax!)
+                                   (f)))
 
 (deftest insert-ignore-into-test
   (testing "INSERT IGNORE INTO sql generation for mysql"
@@ -17,17 +22,29 @@
                sql/format)))))
 
 (deftest match-against-test
-  (testing ""
-    (is (= ["SELECT * FROM board WHERE MATCH (contents) AGAINST (? IN BOOLEAN MODE)" "검색어1 검색어2"]
+  (testing "search-mode"
+    (is (= ["WHERE MATCH (contents) AGAINST ('검색어1 검색어2')"]
            (sql/format
-             {:select [:*]
-              :from   :board
-              :where  [:match-against [:contents] "검색어1 검색어2" :in-boolean-mode]
-              })))))
+             {:where  [:match-against [:contents] "검색어1 검색어2"]}
+             {:inline true})))
+    (is (= ["WHERE MATCH (contents) AGAINST ('검색어1 검색어2' IN BOOLEAN MODE)"]
+           (sql/format
+             {:where  [:match-against [:contents] "검색어1 검색어2" :in-boolean-mode]}
+             {:inline true}))))
+
+  (testing "in where"
+    (let [orderer-name "john"]
+      (is (= ["WHERE MATCH (orderer_name) AGAINST (? IN BOOLEAN MODE)" "john"]
+             (sql/format {:where [:match-against [:orderer_name] orderer-name :in-boolean-mode]})))))
+
+  (testing "in select"
+    (let [text "Security implications of running MySQL as root"
+          mode :in-natural-language-mode]
+      (is (= ["SELECT id, body, MATCH (title, body) AGAINST ('Security implications of running MySQL as root' IN NATURAL LANGUAGE MODE) AS score FROM articles WHERE (MATCH (title, body) AGAINST ('Security implications of running MySQL as root' IN NATURAL LANGUAGE MODE))"])
+          (sql/format {:select [:id :body [[:match-against [:title :body] text mode] :score]]
+                       :from   :articles
+                       :where  [:match-against [:title :body] text mode]}
+                      {:inline true})))))
 
 (comment
   (run-tests))
-
-
-
-

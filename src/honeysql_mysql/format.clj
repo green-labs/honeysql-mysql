@@ -45,5 +45,5 @@
   (doseq [[f {:keys [formatter]}] custom-fns]
     (sql/register-fn! f formatter)))
 
-(extend-syntax!)
+;(extend-syntax!)
 
