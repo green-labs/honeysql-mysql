@@ -16,6 +16,15 @@
                (h/values [{:col1 1 :col2 2} {:col1 3 :col2 4}])
                sql/format)))))
 
+(deftest match-against-test
+  (testing ""
+    (is (= ["SELECT * FROM board WHERE MATCH (contents) AGAINST (? IN BOOLEAN MODE)" "검색어1 검색어2"]
+           (sql/format
+             {:select [:*]
+              :from   :board
+              :where  [:match-against [:contents] "검색어1 검색어2" :in-boolean-mode]
+              })))))
+
 (comment
   (run-tests))
 
