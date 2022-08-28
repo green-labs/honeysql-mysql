@@ -25,17 +25,16 @@
                        :in-boolean-mode
                        :with-query-expansion}
         modifier-sql (when (modifiers search-modifier)
-                       (str " " (sql/sql-kw search-modifier)))
-        ]
+                       (str " " (sql/sql-kw search-modifier)))]
     (-> [(str "MATCH " match " AGAINST (" against-sql modifier-sql ")")]
         (into against-params))))
 
 (def custom-clauses
-  {:insert-ignore-into {:formatter insert-ignore-into-formatter
+  {:insert-ignore-into {:formatter #'insert-ignore-into-formatter
                         :before    :columns}})
 
 (def custom-fns
-  {:match-against {:formatter match-against-formatter}})
+  {:match-against {:formatter #'match-against-formatter}})
 
 (defn extend-syntax!
   []
@@ -45,5 +44,5 @@
   (doseq [[f {:keys [formatter]}] custom-fns]
     (sql/register-fn! f formatter)))
 
-;(extend-syntax!)
+(extend-syntax!)
 
