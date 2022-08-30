@@ -1,6 +1,5 @@
 (ns honeysql-mysql.format
   (:require [clojure.string :as string]
-            [camel-snake-kebab.core :as csk]
             [honey.sql :as sql]
             [honey.sql.helpers :as h]))
 
