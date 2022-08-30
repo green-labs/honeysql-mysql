@@ -46,5 +46,35 @@
                        :where  [:match-against [:title :body] text mode]}
                       {:inline true})))))
 
+(deftest explain-test 
+  (testing "without format"
+    (is (= ["EXPLAIN SELECT * FROM foo WHERE col1 = ?" 1]
+           (-> (mysql-h/explain)
+               (h/select :*)
+               (h/from :foo)
+               (h/where [:= :col1 1])
+               sql/format))))
+  (testing "traditional format"
+    (is (= ["EXPLAIN FORMAT=TRADITIONAL SELECT * FROM foo WHERE col1 = ?" 1]
+           (-> (mysql-h/explain :traditional)
+               (h/select :*)
+               (h/from :foo)
+               (h/where [:= :col1 1])
+               sql/format))))
+  (testing "json format"
+    (is (= ["EXPLAIN FORMAT=JSON SELECT * FROM foo WHERE col1 = ?" 1]
+           (-> (mysql-h/explain :json)
+               (h/select :*)
+               (h/from :foo)
+               (h/where [:= :col1 1])
+               sql/format))))
+  (testing "tree format"
+    (is (= ["EXPLAIN FORMAT=TREE SELECT * FROM foo WHERE col1 = ?" 1]
+           (-> (mysql-h/explain :tree)
+               (h/select :*)
+               (h/from :foo)
+               (h/where [:= :col1 1])
+               sql/format)))))
+
 (comment
   (run-tests))

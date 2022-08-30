@@ -1,5 +1,6 @@
 (ns honeysql-mysql.format
   (:require [clojure.string :as string]
+            [camel-snake-kebab.core :as csk]
             [honey.sql :as sql]
             [honey.sql.helpers :as h]))
 
@@ -13,6 +14,15 @@
                          first)
         result (string/replace insert-into' #"INSERT" "INSERT IGNORE")]
     [result]))
+
+(defn explain-formatter
+  [_op [explain-format]]
+  (let [formats    #{:traditional
+                     :json
+                     :tree}
+        format-sql (when (formats explain-format)
+                     (str " FORMAT=" (sql/sql-kw explain-format)))]
+    [(str "EXPLAIN" format-sql)]))
 
 (defn match-against-formatter
   [_op [cols expr search-modifier]]
@@ -31,7 +41,9 @@
 
 (def custom-clauses
   {:insert-ignore-into {:formatter #'insert-ignore-into-formatter
-                        :before    :columns}})
+                        :before    :columns}
+   :explain            {:formatter #'explain-formatter
+                        :before    :select}})
 
 (def custom-fns
   {:match-against {:formatter #'match-against-formatter}})
@@ -45,4 +57,3 @@
     (sql/register-fn! f formatter)))
 
 (extend-syntax!)
-
