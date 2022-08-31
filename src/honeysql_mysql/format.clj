@@ -14,6 +14,15 @@
         result (string/replace insert-into' #"INSERT" "INSERT IGNORE")]
     [result]))
 
+(defn explain-formatter
+  [_op [explain-format]]
+  (let [formats    #{:traditional
+                     :json
+                     :tree}
+        format-sql (when (formats explain-format)
+                     (str " FORMAT=" (sql/sql-kw explain-format)))]
+    [(str "EXPLAIN" format-sql)]))
+
 (defn match-against-formatter
   [_op [cols expr search-modifier]]
   (let [match        (str "("
@@ -31,7 +40,9 @@
 
 (def custom-clauses
   {:insert-ignore-into {:formatter #'insert-ignore-into-formatter
-                        :before    :columns}})
+                        :before    :columns}
+   :explain            {:formatter #'explain-formatter
+                        :before    :select}})
 
 (def custom-fns
   {:match-against {:formatter #'match-against-formatter}})
@@ -45,4 +56,3 @@
     (sql/register-fn! f formatter)))
 
 (extend-syntax!)
-
