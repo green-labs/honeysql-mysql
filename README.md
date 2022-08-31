@@ -1,4 +1,4 @@
-# honey.sql.my
+# honeysql-mysql
 MySQL extensions for [honeysql](https://github.com/seancorfield/honeysql)
 
 ## Usage
