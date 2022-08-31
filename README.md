@@ -1,4 +1,4 @@
-# honeysql-mysql
+# honey.sql.my
 MySQL extensions for [honeysql](https://github.com/seancorfield/honeysql)
 
 ## Usage
@@ -6,12 +6,12 @@ MySQL extensions for [honeysql](https://github.com/seancorfield/honeysql)
 ```clj
 (require '[honey.sql.core :as sql]
          '[honey.sql.helpers :as h]
-         '[honeysql-mysql.helpers :as mysql-h])
+         '[honey.sql.my.helpers :as mh])
 ```
 
 ### insert-ignore-into
 ```clojure
-(-> (mysql-h/insert-ignore-into :some-table)
+(-> (mh/insert-ignore-into :some-table)
     (h/columns :col1 :col2)
     (h/values [[1 2] [3 4]])
     sql/format)
@@ -20,7 +20,7 @@ MySQL extensions for [honeysql](https://github.com/seancorfield/honeysql)
 
 ### explain
 ```clojure
-(-> (mysql-h/explain)
+(-> (mh/explain)
     (h/select :*)
     (h/from :foo)
     (h/where [:= :col1 1])
@@ -29,7 +29,7 @@ MySQL extensions for [honeysql](https://github.com/seancorfield/honeysql)
 
 ;; Use format
 ;; Available formats: :traditional, :tree, :json
-(-> (mysql-h/explain :tree)
+(-> (mh/explain :tree)
     (h/select :*)
     (h/from :foo)
     (h/where [:= :col1 1])

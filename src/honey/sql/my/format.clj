@@ -1,4 +1,4 @@
-(ns honeysql-mysql.format
+(ns honey.sql.my.format
   (:require [clojure.string :as string]
             [honey.sql :as sql]
             [honey.sql.helpers :as h]))

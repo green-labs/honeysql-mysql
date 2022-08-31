@@ -1,23 +1,19 @@
-(ns honeysql-mysql.mysql-test
+(ns honey.sql.my.mysql-test
   (:require [clojure.test :refer [deftest run-tests is testing]]
-            [honeysql-mysql.format :refer [extend-syntax!]]
-            [honeysql-mysql.helpers :as mysql-h]
             [honey.sql :as sql]
-            [honey.sql.helpers :as h]))
-
-(clojure.test/use-fixtures :once (fn [f]
-                                   (extend-syntax!)
-                                   (f)))
+            [honey.sql.helpers :as h]
+            [honey.sql.my.format]
+            [honey.sql.my.helpers :as mh]))
 
 (deftest insert-ignore-into-test
   (testing "INSERT IGNORE INTO sql generation for mysql"
     (is (= ["INSERT IGNORE INTO some_table (col1, col2) VALUES (?, ?), (?, ?)" 1 2 3 4]
-           (-> (mysql-h/insert-ignore-into :some-table)
+           (-> (mh/insert-ignore-into :some-table)
                (h/columns :col1 :col2)
                (h/values [[1 2] [3 4]])
                sql/format)))
     (is (= ["INSERT IGNORE INTO some_table (col1, col2) VALUES (?, ?), (?, ?)" 1 2 3 4]
-           (-> (mysql-h/insert-ignore-into :some-table)
+           (-> (mh/insert-ignore-into :some-table)
                (h/values [{:col1 1 :col2 2} {:col1 3 :col2 4}])
                sql/format)))))
 
@@ -49,28 +45,28 @@
 (deftest explain-test 
   (testing "without format"
     (is (= ["EXPLAIN SELECT * FROM foo WHERE col1 = ?" 1]
-           (-> (mysql-h/explain)
+           (-> (mh/explain)
                (h/select :*)
                (h/from :foo)
                (h/where [:= :col1 1])
                sql/format))))
   (testing "traditional format"
     (is (= ["EXPLAIN FORMAT=TRADITIONAL SELECT * FROM foo WHERE col1 = ?" 1]
-           (-> (mysql-h/explain :traditional)
+           (-> (mh/explain :traditional)
                (h/select :*)
                (h/from :foo)
                (h/where [:= :col1 1])
                sql/format))))
   (testing "json format"
     (is (= ["EXPLAIN FORMAT=JSON SELECT * FROM foo WHERE col1 = ?" 1]
-           (-> (mysql-h/explain :json)
+           (-> (mh/explain :json)
                (h/select :*)
                (h/from :foo)
                (h/where [:= :col1 1])
                sql/format))))
   (testing "tree format"
     (is (= ["EXPLAIN FORMAT=TREE SELECT * FROM foo WHERE col1 = ?" 1]
-           (-> (mysql-h/explain :tree)
+           (-> (mh/explain :tree)
                (h/select :*)
                (h/from :foo)
                (h/where [:= :col1 1])

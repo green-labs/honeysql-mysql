@@ -1,7 +1,6 @@
-(ns honeysql-mysql.helpers
+(ns honey.sql.my.helpers
   (:require [honey.sql.helpers :as h]
-            [honey.sql :as sql]
-            [honeysql-mysql.format :as format]))
+            [honey.sql.my.format :as format]))
 
 (defn insert-ignore-into
   [& args]
