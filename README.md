@@ -40,7 +40,7 @@ MySQL extensions for [honeysql](https://github.com/seancorfield/honeysql)
 ### optimizer hints
 Only supports index level hints with select yet
 
-**table("t1" in example), index("i_a", "i_b", "i_c" in example) arguments must be a string type for the reasons given below**
+**table("t1" in example), index("i_a", "i_b", "i_c" in example) arguments must be a string type(not keyword) for the reasons given below**
 1. Query block prefixed by @ can come as table argument
 
     Syntax of index-level hints(from [MySQL 8.0 Reference Manual](https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html))
