@@ -40,17 +40,6 @@ MySQL extensions for [honeysql](https://github.com/seancorfield/honeysql)
 ### optimizer hints
 Only supports index level hints with select yet
 
-**table("t1" in example), index("i_a", "i_b", "i_c" in example) arguments must be a string type(not keyword) for the reasons given below**
-1. Query block prefixed by @ can come as table argument
-
-    Syntax of index-level hints(from [MySQL 8.0 Reference Manual](https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html))
-    ```
-    hint_name([@query_block_name] tbl_name [index_name [, index_name] ...])
-    hint_name(tbl_name@query_block_name [index_name [, index_name] ...])
-    ```
-2. [next-jdbc](https://github.com/seancorfield/next-jdbc) doesn't support an option to convert the case of comments(Optimizer hints are treated as comments)
-
-
 ```clojure
 (-> (mh/select-with-optimizer-hints [:*] [[:index-merge "t1" ["i_a" "i_b" "i_c"]]])
     (h/from :t1)
