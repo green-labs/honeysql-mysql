@@ -1,5 +1,6 @@
 (ns honey.sql.my.format
   (:require [clojure.string :as string]
+            [camel-snake-kebab.core :as csk]
             [honey.sql :as sql]
             [honey.sql.helpers :as h]))
 
@@ -38,11 +39,52 @@
     (-> [(str "MATCH " match " AGAINST (" against-sql modifier-sql ")")]
         (into against-params))))
 
+(def index-level-optimizer-hint-names
+  #{:group-index
+    :no-group-index
+    :index
+    :no-index
+    :index-merge
+    :no-index-merge
+    :join-index
+    :no-join-index
+    :mrr
+    :no-mrr
+    :no-icp
+    :no-range-optimization
+    :order-index
+    :no-order-index
+    :skip-scan
+    :no-skip-scan})
+
+(defn hint->hint-format-string
+  "Turns a hint to MySQL optimizer hint format string
+   ex) [:group-index tb1 [i_a i_b]]
+       => GROUP_INDEX(tb1 i_a, i_b)"
+  [[hint-name table indexes]]
+  (format "%s(%s %s)"
+          (csk/->SCREAMING_SNAKE_CASE_STRING hint-name)
+          table
+          (string/join ", " indexes)))
+
+(defn select-with-optimizer-hints-formatter
+  [_op [cols hints]]
+  (let [hints      (->> hints
+                        (filter (fn [[hint-name _ _]] (index-level-optimizer-hint-names hint-name)))
+                        (map hint->hint-format-string)
+                        (string/join " "))
+        hint-sql   (str "/*+ " hints " */")
+        select-sql (-> (apply h/select cols)
+                       sql/format)]
+    (update select-sql 0 #(string/replace % #"SELECT" (str "SELECT " hint-sql)))))
+
 (def custom-clauses
-  {:insert-ignore-into {:formatter #'insert-ignore-into-formatter
-                        :before    :columns}
-   :explain            {:formatter #'explain-formatter
-                        :before    :select}})
+  {:insert-ignore-into          {:formatter #'insert-ignore-into-formatter
+                                 :before    :columns}
+   :explain                     {:formatter #'explain-formatter
+                                 :before    :select}
+   :select-with-optimizer-hints {:formatter #'select-with-optimizer-hints-formatter
+                                 :before    :from}})
 
 (def custom-fns
   {:match-against {:formatter #'match-against-formatter}})
