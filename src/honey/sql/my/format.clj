@@ -58,7 +58,7 @@
     :no-skip-scan})
 
 (defn hint->hint-format-string
-  "Turns a hint to MySQL optimizer hint format string
+  "Turns a hint into MySQL optimizer hint format string
    ex) [:group-index :tb1 [:i_a :i_b]]
        => GROUP_INDEX(tb1 i_a, i_b)"
   [[hint-name table indexes]]
