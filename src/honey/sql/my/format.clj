@@ -59,13 +59,13 @@
 
 (defn hint->hint-format-string
   "Turns a hint to MySQL optimizer hint format string
-   ex) [:group-index tb1 [i_a i_b]]
+   ex) [:group-index :tb1 [:i_a :i_b]]
        => GROUP_INDEX(tb1 i_a, i_b)"
   [[hint-name table indexes]]
   (format "%s(%s %s)"
           (csk/->SCREAMING_SNAKE_CASE_STRING hint-name)
-          table
-          (string/join ", " indexes)))
+          (name table)
+          (string/join ", " (map name indexes))))
 
 (defn select-with-optimizer-hints-formatter
   [_op [cols hints]]

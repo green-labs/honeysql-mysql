@@ -75,14 +75,14 @@
 (deftest select-with-optimizer-hints-test
   (testing "Use only one hint"
     (is (= ["SELECT /*+ INDEX_MERGE(t1 i_a, i_b, i_c) */ * FROM t1 WHERE (a = 1) AND (b = 2)"]
-           (-> (mh/select-with-optimizer-hints [:*] [[:index-merge "t1" ["i_a" "i_b" "i_c"]]])
+           (-> (mh/select-with-optimizer-hints [:*] [[:index-merge :t1 [:i_a :i_b :i_c]]])
                (h/from :t1)
                (h/where [:and [:= :a 1] [:= :b 2]])
                (sql/format {:inline true})))))
   (testing "Use multiple hints"
     (is (= ["SELECT /*+ NO_INDEX_MERGE(t1 i_a, i_b) INDEX_MERGE(t1 i_b) */ * FROM t1 WHERE (a = 1) AND (b = 2)"]
-           (-> (mh/select-with-optimizer-hints [:*] [[:no-index-merge "t1" ["i_a" "i_b"]]
-                                                     [:index-merge "t1" ["i_b"]]])
+           (-> (mh/select-with-optimizer-hints [:*] [[:no-index-merge :t1 [:i_a :i_b]]
+                                                     [:index-merge :t1 [:i_b]]])
                (h/from :t1)
                (h/where [:and [:= :a 1] [:= :b 2]])
                (sql/format {:inline true}))))))
