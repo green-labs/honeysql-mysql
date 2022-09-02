@@ -4,7 +4,7 @@ MySQL extensions for [honeysql](https://github.com/seancorfield/honeysql)
 ## Usage
 ### REPL
 ```clj
-(require '[honey.sql.core :as sql]
+(require '[honey.sql :as sql]
          '[honey.sql.helpers :as h]
          '[honey.sql.my.helpers :as mh])
 ```
