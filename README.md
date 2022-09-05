@@ -37,6 +37,25 @@ MySQL extensions for [honeysql](https://github.com/seancorfield/honeysql)
 ;; => ["EXPLAIN FORMAT=TREE SELECT * FROM foo WHERE col1 = ?" 1]
 ```
 
+### optimizer hints
+Only supports index level hints with select yet
+
+```clojure
+(-> (mh/select-with-optimizer-hints [:*] [[:index-merge :t1 [:i-a :i-b :i-c]]])
+    (h/from :t1)
+    (h/where [:and [:= :a 1] [:= :b 2]])
+    (sql/format {:inline true}))
+;; => ["SELECT /*+ INDEX_MERGE(t1 i_a, i_b, i_c) */ * FROM t1 WHERE (a = 1) AND (b = 2)"]
+
+;; You can use multiple hints at once
+(-> (mh/select-with-optimizer-hints [:*] [[:no-index-merge :t1 [:i-a :i-b]]
+                                          [:index-merge :t1 [:i-b]]])
+    (h/from :t1)
+    (h/where [:and [:= :a 1] [:= :b 2]])
+    (sql/format {:inline true}))
+;; => ["SELECT /*+ NO_INDEX_MERGE(t1 i_a, i_b) INDEX_MERGE(t1 i_b) */ * FROM t1 WHERE (a = 1) AND (b = 2)"]
+```
+
 ## Run tests
 ```bash
 clj -X:test

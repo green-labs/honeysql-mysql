@@ -9,3 +9,9 @@
 (defn explain
   [& args]
   (h/generic-helper-variadic :explain args))
+
+(defn select-with-optimizer-hints
+  "Only supports Index-Level Optimizer Hints yet
+   TODO) Support other levels optimizer hints"
+  [& args]
+  (h/generic-helper-variadic :select-with-optimizer-hints args))
