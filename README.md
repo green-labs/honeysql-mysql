@@ -18,6 +18,27 @@ MySQL extensions for [honeysql](https://github.com/seancorfield/honeysql)
 ;; => ["INSERT IGNORE INTO some_table (col1, col2) VALUES (?, ?), (?, ?)" 1 2 3 4]
 ```
 
+### fulltext search
+```clojure
+(-> (h/select :*)
+    (h/from :foo)
+    (h/where [:match-against [:contents] "word1 word2"])
+    (sql/format {:inline true}))
+;; => ["SELECT * FROM foo WHERE MATCH (contents) AGAINST ('word1 word2')"]
+
+(-> (h/select :*)
+    (h/from :foo)
+    (h/where [:match-against [:contents] "word1 word2" :in-boolean-mode])
+    (sql/format {:inline true}))
+;; => ["SELECT * FROM foo WHERE MATCH (contents) AGAINST ('word1 word2' IN BOOLEAN MODE)"]
+
+(-> (h/select :id :body [[:match-against [:title :body] "some text" :in-natural-language-mode] :score])
+    (h/from :articles)
+    (h/where [:match-against [:title :body] "some text" :in-natural-language-mode])
+    (sql/format {:inline true}))
+;; => ["SELECT id, body, MATCH (title, body) AGAINST ('some text' IN NATURAL LANGUAGE MODE) AS score FROM articles WHERE MATCH (title, body) AGAINST ('some text' IN NATURAL LANGUAGE MODE)"]
+```
+
 ### explain
 ```clojure
 (-> (mh/explain)
