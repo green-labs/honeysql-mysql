@@ -1,5 +1,6 @@
 {:paths   ["src"]
- :deps    {com.github.seancorfield/honeysql {:mvn/version "2.2.868"}}
+ :deps    {com.github.seancorfield/honeysql    {:mvn/version "2.2.868"}
+           camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.3"}}
  :aliases {:test {:extra-paths ["test"]
                   :extra-deps  {com.github.seancorfield/next.jdbc    {:mvn/version "1.2.737"}
                                 mysql/mysql-connector-java           {:mvn/version "8.0.23"}
