@@ -77,6 +77,15 @@ Only supports index level hints with select yet
 ;; => ["SELECT /*+ NO_INDEX_MERGE(t1 i_a, i_b) INDEX_MERGE(t1 i_b) */ * FROM t1 WHERE (a = 1) AND (b = 2)"]
 ```
 
+### values with alias
+```clojure
+(-> (h/insert-into :foo)
+    (mh/values-as [{:a 1 :b 2} {:a 3 :b 4}] :new)
+    (h/on-duplicate-key-update {:b :new.b})
+    sql/format)))
+;; => ["INSERT INTO foo (a, b) VALUES (?, ?), (?, ?) AS new ON DUPLICATE KEY UPDATE b = new.b" 1 2 3 4]
+```
+
 ## Run tests
 ```bash
 clj -X:test

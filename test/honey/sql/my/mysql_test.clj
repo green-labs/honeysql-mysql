@@ -87,5 +87,13 @@
                (h/where [:and [:= :a 1] [:= :b 2]])
                (sql/format {:inline true}))))))
 
+(deftest values-as-test
+  (testing "use row alias"
+    (is (= ["INSERT INTO foo (a, b) VALUES (?, ?), (?, ?) AS new ON DUPLICATE KEY UPDATE b = new.b" 1 2 3 4]
+           (-> (h/insert-into :foo)
+               (mh/values-as [{:a 1 :b 2} {:a 3 :b 4}] :new)
+               (h/on-duplicate-key-update {:b :new.b})
+               sql/format)))))
+
 (comment
   (run-tests))
