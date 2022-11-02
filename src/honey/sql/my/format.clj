@@ -78,13 +78,20 @@
                        sql/format)]
     (update select-sql 0 #(string/replace % #"SELECT" (str "SELECT " hint-sql)))))
 
+(defn values-as-formatter
+  [_op [values alias]]
+  (let [values-sql (sql/format (h/values values))]
+    (update values-sql 0 #(str % " AS " (name alias)))))
+
 (def custom-clauses
   {:insert-ignore-into          {:formatter #'insert-ignore-into-formatter
                                  :before    :columns}
    :explain                     {:formatter #'explain-formatter
                                  :before    :select}
    :select-with-optimizer-hints {:formatter #'select-with-optimizer-hints-formatter
-                                 :before    :from}})
+                                 :before    :from}
+   :values-as                   {:formatter #'values-as-formatter
+                                 :before    :on-duplicate-key-update}})
 
 (def custom-fns
   {:match-against {:formatter #'match-against-formatter}})

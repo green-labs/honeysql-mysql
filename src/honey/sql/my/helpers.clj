@@ -15,3 +15,7 @@
    TODO) Support other levels optimizer hints"
   [& args]
   (h/generic-helper-variadic :select-with-optimizer-hints args))
+
+(defn values-as
+  [& args]
+  (h/generic-helper-variadic :values-as args))
