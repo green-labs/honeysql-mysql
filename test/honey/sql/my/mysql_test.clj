@@ -95,5 +95,19 @@
                (h/on-duplicate-key-update {:b :new.b})
                sql/format)))))
 
+(deftest timestampdiff-test
+  (is (= ["SELECT * FROM `table` WHERE TIMESTAMPDIFF(HOUR, `expired_at`, NOW()) < ?" 24]
+         (sql/format
+           {:select [:*]
+            :from [:table]
+            :where [:< [:timestampdiff :hour :expired_at [:now]] 24]}
+           {:dialect :mysql
+            :quoted true})))
+  (is (= ["SELECT TIMESTAMPDIFF(YEAR, `birth_date`, NOW()) AS `age` FROM `user`"]
+         (sql/format
+           {:select [[[:timestampdiff :year :birth_date [:now]] :age]]
+            :from [:user]}
+           {:dialect :mysql
+            :quoted true}))))
 (comment
   (run-tests))
