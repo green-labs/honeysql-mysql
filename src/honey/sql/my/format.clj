@@ -24,21 +24,6 @@
                      (str " FORMAT=" (sql/sql-kw explain-format)))]
     [(str "EXPLAIN" format-sql)]))
 
-(defn match-against-formatter
-  [_op [cols expr search-modifier]]
-  (let [match        (str "("
-                          (string/join ", " (map sql/format-entity cols))
-                          ")")
-        [against-sql & against-params] (sql/format-expr expr)
-        modifiers    #{:in-natural-language-mode
-                       :in-natural-language-mode-with-query-expansion
-                       :in-boolean-mode
-                       :with-query-expansion}
-        modifier-sql (when (modifiers search-modifier)
-                       (str " " (sql/sql-kw search-modifier)))]
-    (-> [(str "MATCH " match " AGAINST (" against-sql modifier-sql ")")]
-        (into against-params))))
-
 (def index-level-optimizer-hint-names
   #{:group-index
     :no-group-index
@@ -93,8 +78,33 @@
    :values-as                   {:formatter #'values-as-formatter
                                  :before    :on-duplicate-key-update}})
 
+(defn match-against-formatter
+  [_op [cols expr search-modifier]]
+  (let [match        (str "("
+                          (string/join ", " (map sql/format-entity cols))
+                          ")")
+        [against-sql & against-params] (sql/format-expr expr)
+        modifiers    #{:in-natural-language-mode
+                       :in-natural-language-mode-with-query-expansion
+                       :in-boolean-mode
+                       :with-query-expansion}
+        modifier-sql (when (modifiers search-modifier)
+                       (str " " (sql/sql-kw search-modifier)))]
+    (-> [(str "MATCH " match " AGAINST (" against-sql modifier-sql ")")]
+        (into against-params))))
+
+(defn timestampdiff-formatter
+  [_op [unit expr-1 expr-2]]
+  (let [sql-unit (sql/sql-kw unit)
+        [sql-expr-1 & params-expr-1] (sql/format-expr expr-1)
+        [sql-expr-2 & params-expr-2] (sql/format-expr expr-2)]
+    (-> [(str "TIMESTAMPDIFF(" (string/join ", " [sql-unit sql-expr-1 sql-expr-2]) ")")]
+        (into params-expr-1)
+        (into params-expr-2))))
+
 (def custom-fns
-  {:match-against {:formatter #'match-against-formatter}})
+  {:match-against {:formatter #'match-against-formatter}
+   :timestampdiff {:formatter #'timestampdiff-formatter}})
 
 (defn extend-syntax!
   []

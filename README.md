@@ -82,8 +82,18 @@ Only supports index level hints with select yet
 (-> (h/insert-into :foo)
     (mh/values-as [{:a 1 :b 2} {:a 3 :b 4}] :new)
     (h/on-duplicate-key-update {:b :new.b})
-    sql/format)))
+    sql/format)
 ;; => ["INSERT INTO foo (a, b) VALUES (?, ?), (?, ?) AS new ON DUPLICATE KEY UPDATE b = new.b" 1 2 3 4]
+```
+
+### timestampdiff function
+```clojure
+(-> (h/select :*)
+    (h/from :table)
+    (h/where :< [:timestampdiff :hour :expired_at [:now]] 24)
+    (sql/format {:dialect :mysql
+                 :quoted true}))
+;; => ["SELECT * FROM `table` WHERE TIMESTAMPDIFF(HOUR, `expired_at`, NOW()) < ?" 24]
 ```
 
 ## Run tests
