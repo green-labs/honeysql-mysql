@@ -15,7 +15,13 @@
     (is (= ["INSERT IGNORE INTO some_table (col1, col2) VALUES (?, ?), (?, ?)" 1 2 3 4]
            (-> (mh/insert-ignore-into :some-table)
                (h/values [{:col1 1 :col2 2} {:col1 3 :col2 4}])
-               sql/format)))))
+               sql/format)))
+    (is (= ["INSERT IGNORE INTO `some_table` (`col1`, `col2`) VALUES (?, ?), (?, ?)" 1 2 3 4]
+           (-> (mh/insert-ignore-into :some-table)
+               (h/values [{:col1 1 :col2 2} {:col1 3 :col2 4}])
+               (sql/format {:dialect :mysql
+                            :quoted true
+                            :quoted-snake true}))))))
 
 (deftest match-against-test
   (testing "search-mode"
@@ -78,7 +84,12 @@
            (-> (mh/select-with-optimizer-hints [:*] [[:index-merge :t1 [:i-a :i-b :i-c]]])
                (h/from :t1)
                (h/where [:and [:= :a 1] [:= :b 2]])
-               (sql/format {:inline true})))))
+               (sql/format {:inline true}))))
+    (is (= ["SELECT /*+ INDEX_MERGE(`t1` `i_a`, `i_b`, `i_c`) */ `col_a`, `col_b`, `col_c` FROM `t1`"]
+           (-> (mh/select-with-optimizer-hints [:col-a :col-b :col-c] [[:index-merge :t1 [:i-a :i-b :i-c]]])
+               (h/from :t1)
+               (sql/format {:dialect :mysql
+                            :quoted-snake true})))))
   (testing "Use multiple hints"
     (is (= ["SELECT /*+ NO_INDEX_MERGE(t1 i_a, i_b) INDEX_MERGE(t1 i_b) */ * FROM t1 WHERE (a = 1) AND (b = 2)"]
            (-> (mh/select-with-optimizer-hints [:*] [[:no-index-merge :t1 [:i-a :i-b]]

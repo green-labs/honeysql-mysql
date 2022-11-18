@@ -10,7 +10,7 @@
                       (apply h/insert-into args)
                       (h/insert-into args))
         insert-into' (-> insert-into
-                         sql/format
+                         sql/format-dsl
                          first)
         result (string/replace insert-into' #"INSERT" "INSERT IGNORE")]
     [result]))
@@ -60,7 +60,7 @@
                         (string/join " "))
         hint-sql   (str "/*+ " hints " */")
         select-sql (-> (apply h/select cols)
-                       sql/format)]
+                       sql/format-dsl)]
     (update select-sql 0 #(string/replace % #"SELECT" (str "SELECT " hint-sql)))))
 
 (defn values-as-formatter
