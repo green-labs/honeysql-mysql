@@ -85,8 +85,8 @@
                (h/from :t1)
                (h/where [:and [:= :a 1] [:= :b 2]])
                (sql/format {:inline true}))))
-    (is (= ["SELECT /*+ INDEX_MERGE(`t1` `i_a`, `i_b`, `i_c`) */ `col_a`, `col_b`, `col_c` FROM `t1`"]
-           (-> (mh/select-with-optimizer-hints [:col-a :col-b :col-c] [[:index-merge :t1 [:i-a :i-b :i-c]]])
+    (is (= ["SELECT /*+ NO_ORDER_INDEX(`t1` `i_a`, `i_b`, `i_c`) */ `col_a`, `col_b`, `col_c` FROM `t1`"]
+           (-> (mh/select-with-optimizer-hints [:col-a :col-b :col-c] [[:no-order-index :t1 [:i-a :i-b :i-c]]])
                (h/from :t1)
                (sql/format {:dialect :mysql
                             :quoted-snake true})))))
