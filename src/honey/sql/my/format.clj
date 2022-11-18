@@ -40,7 +40,8 @@
     :order-index
     :no-order-index
     :skip-scan
-    :no-skip-scan})
+    :no-skip-scan
+    :join-prefix})
 
 (defn hint->hint-format-string
   "Turns a hint into MySQL optimizer hint format string
