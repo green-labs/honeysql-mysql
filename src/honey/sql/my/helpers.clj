@@ -19,3 +19,7 @@
 (defn values-as
   [& args]
   (h/generic-helper-variadic :values-as args))
+
+(defn select-straight-join
+  [& args]
+  (h/generic-helper-variadic :select-straight-join args))

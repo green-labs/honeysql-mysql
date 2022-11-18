@@ -96,6 +96,19 @@ Only supports index level hints with select yet
 ;; => ["SELECT * FROM `table` WHERE TIMESTAMPDIFF(HOUR, `expired_at`, NOW()) < ?" 24]
 ```
 
+### select straight join
+```clojure
+(-> (mh/select-straight-join :*
+                             :col
+                             [:col :col-alias]
+                             [[:now] :now])
+    (h/from :table)
+    (sql/format {:dialect :mysql
+                 :quoted true
+                 :quoted-snake true}))
+;; => ["SELECT STRAIGHT_JOIN *, `col`, `col` AS `col_alias`, NOW() AS `now` FROM `table`"]
+```
+
 ## Run tests
 ```bash
 clj -X:test
