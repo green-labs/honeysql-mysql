@@ -70,7 +70,6 @@
 
 (defn select-straight-join
   [_op cols]
-  (prn cols)
   (let [select-sql (-> (apply h/select cols)
                        sql/format-dsl)]
     (update select-sql 0 #(string/replace % #"SELECT" (str "SELECT STRAIGHT_JOIN")))))
