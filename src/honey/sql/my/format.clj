@@ -68,6 +68,13 @@
   (let [values-sql (sql/format (h/values values))]
     (update values-sql 0 #(str % " AS " (name alias)))))
 
+(defn select-straight-join
+  [_op cols]
+  (prn cols)
+  (let [select-sql (-> (apply h/select cols)
+                       sql/format-dsl)]
+    (update select-sql 0 #(string/replace % #"SELECT" (str "SELECT STRAIGHT_JOIN")))))
+
 (def custom-clauses
   {:insert-ignore-into          {:formatter #'insert-ignore-into-formatter
                                  :before    :columns}
@@ -76,7 +83,9 @@
    :select-with-optimizer-hints {:formatter #'select-with-optimizer-hints-formatter
                                  :before    :from}
    :values-as                   {:formatter #'values-as-formatter
-                                 :before    :on-duplicate-key-update}})
+                                 :before    :on-duplicate-key-update}
+   :select-straight-join        {:formatter #'select-straight-join
+                                 :before    :from}})
 
 (defn match-against-formatter
   [_op [cols expr search-modifier]]

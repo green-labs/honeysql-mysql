@@ -107,5 +107,17 @@
              (h/from :user)
              (sql/format {:dialect :mysql
                           :quoted true})))))
+
+(deftest select-straight-join-test
+  (is (= ["SELECT STRAIGHT_JOIN *, `col`, `col` AS `col_alias`, NOW() AS `now` FROM `table`"]
+         (-> (mh/select-straight-join :*
+                                      :col
+                                      [:col :col-alias]
+                                      [[:now] :now])
+             (h/from :table)
+             (sql/format {:dialect :mysql
+                          :quoted true
+                          :quoted-snake true})))))
+
 (comment
   (run-tests))
