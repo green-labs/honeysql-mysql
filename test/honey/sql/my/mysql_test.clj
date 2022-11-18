@@ -100,6 +100,14 @@
                (h/from [:table1 :t1])
                (h/left-join [:table2 :t2] [:= :t1 :t2])
                (h/where [:= :t1.role "admin"])
+               sql/format))))
+  (testing "remove unsupported hint test"
+    (is (= (-> (mh/select-with-optimizer-hints [:*] [[:join-prefix [:t1 :t2]]
+                                                     [:index-merge :t1 [:i-a :i-b :i-c]]
+                                                     [:unsupport-merge :a [:i-a :i-b :i-c]]])
+               (h/from [:table1 :t1])
+               (h/left-join [:table2 :t2] [:= :t1 :t2])
+               (h/where [:= :t1.role "admin"])
                sql/format)))))
 
 (deftest values-as-test

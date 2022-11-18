@@ -74,17 +74,10 @@
       (index-level-optimizer-hint-names hint-name) (hint->hint-format-string hint)
       (join-level-optimizer-hint-names hint-name) (join-level-hint->hint-format-string hint))))
 
-(let [supported-hint-names (set/union index-level-optimizer-hint-names join-level-optimizer-hint-names)]
-  (defn valid-hint-names?
-    "유효한 hint-name을 가지면 true를 리턴합니다."
-    [hint]
-    (supported-hint-names (first hint))))
-
 (defn select-with-optimizer-hints-formatter
   [_op [cols hints]]
   (let [hints      (->> hints
-                        (filter valid-hint-names?)
-                        (map hint->hint-format-string-by-type)
+                        (keep hint->hint-format-string-by-type)
                         (string/join " "))
         hint-sql   (str "/*+ " hints " */")
         select-sql (-> (apply h/select cols)
