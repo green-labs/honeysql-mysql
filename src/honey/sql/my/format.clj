@@ -45,7 +45,10 @@
     :no-skip-scan})
 
 (def join-level-optimizer-hint-names
-  #{:join-prefix})
+  #{:join-prefix
+    :join-order
+    :join-fixed-order
+    :join-suffix})
 
 (defn hint->hint-format-string
   "Turns a hint into MySQL optimizer hint format string
