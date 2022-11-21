@@ -125,7 +125,7 @@ Only supports index level hints with select yet
                  :quoted-snake true}))
 ;; => ["SELECT GROUP_CONCAT(DISTINCT `col1`) AS `c1` FROM `table1`"]
 
-(-> (h/select [[:group-concat :col1 {:order-by [[:col2 :desc]] :seperator "|"}]])
+(-> (h/select [[:group-concat [:distinct :col1] {:order-by [[:col2 :desc]] :seperator "|"}]])
     (h/from :table1)
     (sql/format {:dialect      :mysql
                  :quoted       true
