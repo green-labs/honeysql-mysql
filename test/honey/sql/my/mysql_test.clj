@@ -192,7 +192,7 @@
   (testing "GROUP_CONCAT with DISTINCT, ORDER BY, SEPARATOR"
     (is (= ["SELECT GROUP_CONCAT(DISTINCT `col1` ORDER BY `col2` DESC SEPARATOR '|') FROM `table1`"]
            (-> (h/select [[:group-concat :col1 {:order-by  [[:col2 :desc]]
-                                                :seperator "|"}]])
+                                                :separator "|"}]])
                (h/from :table1)
                (sql/format {:dialect      :mysql
                             :quoted       true
