@@ -2,7 +2,9 @@
   (:require [clojure.string :as string]
             [camel-snake-kebab.core :as csk]
             [honey.sql :as sql]
-            [honey.sql.helpers :as h]))
+            [honey.sql.helpers :as h]
+            [clojure.string :as str]
+            [clojure.set :as set]))
 
 (defn insert-ignore-into-formatter
   [_op args]
@@ -42,6 +44,12 @@
     :skip-scan
     :no-skip-scan})
 
+(def join-level-optimizer-hint-names
+  #{:join-prefix
+    :join-order
+    :join-fixed-order
+    :join-suffix})
+
 (defn hint->hint-format-string
   "Turns a hint into MySQL optimizer hint format string
    ex) [:group-index :tb1 [:i-a :i-b]]
@@ -52,11 +60,27 @@
           (sql/format-entity table)
           (string/join ", " (map sql/format-entity indexes))))
 
+(defn join-level-hint->hint-format-string
+  "join level 힌트포맷을 리턴합니다"
+  [[hint-name tables]]
+  (let [tables' (->> tables
+                     (map sql/format-entity)
+                     (str/join ", "))
+        hint-name' (csk/->SCREAMING_SNAKE_CASE_STRING hint-name)]
+    (format "%s(%s)" hint-name' tables')))
+
+(defn hint->hint-format-string-by-type
+  "optimizer hint 의 유형에 따른 힌트문자열을 리턴합니다."
+  [hint]
+  (let [hint-name (first hint)]
+    (cond
+      (index-level-optimizer-hint-names hint-name) (hint->hint-format-string hint)
+      (join-level-optimizer-hint-names hint-name) (join-level-hint->hint-format-string hint))))
+
 (defn select-with-optimizer-hints-formatter
   [_op [cols hints]]
   (let [hints      (->> hints
-                        (filter (fn [[hint-name _ _]] (index-level-optimizer-hint-names hint-name)))
-                        (map hint->hint-format-string)
+                        (keep hint->hint-format-string-by-type)
                         (string/join " "))
         hint-sql   (str "/*+ " hints " */")
         select-sql (-> (apply h/select cols)

@@ -96,7 +96,30 @@
                                                      [:index-merge :t1 [:i-b]]])
                (h/from :t1)
                (h/where [:and [:= :a 1] [:= :b 2]])
-               (sql/format {:inline true}))))))
+               (sql/format {:inline true})))))
+  (testing "JOIN_PREFIX() hint test"
+    (is (= ["SELECT /*+ JOIN_PREFIX(t1, t2) */ * FROM table1 AS t1 LEFT JOIN table2 AS t2 ON t1 = t2 WHERE t1.role = ?" "admin"]
+           (-> (mh/select-with-optimizer-hints [:*] [[:join-prefix [:t1 :t2]]])
+               (h/from [:table1 :t1])
+               (h/left-join [:table2 :t2] [:= :t1 :t2])
+               (h/where [:= :t1.role "admin"])
+               sql/format))))
+  (testing "join level hint X index levelt hint"
+    (is (= ["SELECT /*+ JOIN_PREFIX(t1, t2) INDEX_MERGE(t1 i_a, i_b, i_c) */ * FROM table1 AS t1 LEFT JOIN table2 AS t2 ON t1 = t2 WHERE t1.role = ?" "admin"]
+         (-> (mh/select-with-optimizer-hints [:*] [[:join-prefix [:t1 :t2]]
+                                                     [:index-merge :t1 [:i-a :i-b :i-c]]])
+               (h/from [:table1 :t1])
+               (h/left-join [:table2 :t2] [:= :t1 :t2])
+               (h/where [:= :t1.role "admin"])
+               sql/format))))
+  (testing "remove unsupported hint test"
+    (is (= (-> (mh/select-with-optimizer-hints [:*] [[:join-prefix [:t1 :t2]]
+                                                     [:index-merge :t1 [:i-a :i-b :i-c]]
+                                                     [:unsupport-merge :a [:i-a :i-b :i-c]]])
+               (h/from [:table1 :t1])
+               (h/left-join [:table2 :t2] [:= :t1 :t2])
+               (h/where [:= :t1.role "admin"])
+               sql/format)))))
 
 (deftest values-as-test
   (testing "use row alias"
