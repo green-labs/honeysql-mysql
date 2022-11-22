@@ -89,8 +89,8 @@
 
 (defn values-as-formatter
   [_op [values alias]]
-  (let [values-sql (sql/format (h/values values))]
-    (update values-sql 0 #(str % " AS " (name alias)))))
+  (let [values-sql (sql/format-dsl (h/values values))]
+    (update values-sql 0 #(str % " AS " (sql/format-entity alias)))))
 
 (defn select-straight-join
   [_op cols]
