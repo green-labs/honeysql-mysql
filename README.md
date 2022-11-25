@@ -82,8 +82,10 @@ Only supports index level hints with select yet
 (-> (h/insert-into :foo)
     (mh/values-as [{:a 1 :b 2} {:a 3 :b 4}] :new)
     (h/on-duplicate-key-update {:b :new.b})
-    sql/format)
-;; => ["INSERT INTO foo (a, b) VALUES (?, ?), (?, ?) AS new ON DUPLICATE KEY UPDATE b = new.b" 1 2 3 4]
+    (sql/format {:dialect :mysql
+                 :quoted  true
+                 :inline  true}))
+;; => ["INSERT INTO `foo` (`a`, `b`) VALUES (1, 2), (3, 4) AS `new` ON DUPLICATE KEY UPDATE `b` = `new`.`b`"]
 ```
 
 ### timestampdiff function

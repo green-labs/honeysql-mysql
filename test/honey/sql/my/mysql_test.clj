@@ -123,11 +123,13 @@
 
 (deftest values-as-test
   (testing "use row alias"
-    (is (= ["INSERT INTO foo (a, b) VALUES (?, ?), (?, ?) AS new ON DUPLICATE KEY UPDATE b = new.b" 1 2 3 4]
+    (is (= ["INSERT INTO `foo` (`a`, `b`) VALUES (1, 2), (3, 4) AS `new` ON DUPLICATE KEY UPDATE `b` = `new`.`b`"]
            (-> (h/insert-into :foo)
                (mh/values-as [{:a 1 :b 2} {:a 3 :b 4}] :new)
                (h/on-duplicate-key-update {:b :new.b})
-               sql/format)))))
+               (sql/format {:dialect :mysql
+                            :quoted  true
+                            :inline  true}))))))
 
 (deftest timestampdiff-test
   (is (= ["SELECT * FROM `table` WHERE TIMESTAMPDIFF(HOUR, `expired_at`, NOW()) < ?" 24]
