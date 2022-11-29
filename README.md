@@ -111,6 +111,30 @@ Only supports index level hints with select yet
 ;; => ["SELECT STRAIGHT_JOIN *, `col`, `col` AS `col_alias`, NOW() AS `now` FROM `table`"]
 ```
 
+### group concat
+```clojure
+(-> (h/select [[:group-concat :col1]])
+    (h/from :table1)
+    (sql/format {:dialect      :mysql
+                 :quoted       true
+                 :quoted-snake true}))
+;; => ["SELECT GROUP_CONCAT(`col1`) FROM `table1`"]
+
+(-> (h/select [[:group-concat [:distinct :col1]] :c1])
+    (h/from :table1)
+    (sql/format {:dialect      :mysql
+                 :quoted       true
+                 :quoted-snake true}))
+;; => ["SELECT GROUP_CONCAT(DISTINCT `col1`) AS `c1` FROM `table1`"]
+
+(-> (h/select [[:group-concat [:distinct :col1] {:order-by [[:col2 :desc]] :seperator "|"}]])
+    (h/from :table1)
+    (sql/format {:dialect      :mysql
+                 :quoted       true
+                 :quoted-snake true}))
+;; => ["SELECT GROUP_CONCAT(DISTINCT `col1` ORDER BY `col2` DESC SEPARATOR '|') FROM `table1`"]
+```
+
 ## Run tests
 ```bash
 clj -X:test

@@ -98,6 +98,10 @@
                        sql/format-dsl)]
     (update select-sql 0 #(string/replace % #"SELECT" (str "SELECT STRAIGHT_JOIN")))))
 
+(defn separator
+  [_op str-val]
+  [(str "SEPARATOR " "'" str-val "'")])
+
 (def custom-clauses
   {:insert-ignore-into          {:formatter #'insert-ignore-into-formatter
                                  :before    :columns}
@@ -108,7 +112,8 @@
    :values-as                   {:formatter #'values-as-formatter
                                  :before    :on-duplicate-key-update}
    :select-straight-join        {:formatter #'select-straight-join
-                                 :before    :from}})
+                                 :before    :from}
+   :separator                   {:formatter #'separator}})
 
 (defn match-against-formatter
   [_op [cols expr search-modifier]]
@@ -134,9 +139,20 @@
         (into params-expr-1)
         (into params-expr-2))))
 
+(defn group-concat-formatter
+  [_op [expr clauses]]
+  (let [[sql-expr & params-expr]       (sql/format-expr expr)
+        [sql-clauses & params-clauses] (sql/format-dsl clauses)
+        sqls                           (cond-> sql-expr
+                                         (not-empty sql-clauses) (str " " sql-clauses))]
+    (-> [(str "GROUP_CONCAT(" sqls ")")]
+        (into params-expr)
+        (into params-clauses))))
+
 (def custom-fns
   {:match-against {:formatter #'match-against-formatter}
-   :timestampdiff {:formatter #'timestampdiff-formatter}})
+   :timestampdiff {:formatter #'timestampdiff-formatter}
+   :group-concat  {:formatter #'group-concat-formatter}})
 
 (defn extend-syntax!
   []

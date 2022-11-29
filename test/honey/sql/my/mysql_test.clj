@@ -155,5 +155,50 @@
                           :quoted true
                           :quoted-snake true})))))
 
+(deftest group-concat-test
+  (testing "Simple GROUP_CONCAT"
+    (is (= ["SELECT GROUP_CONCAT(`col1`) FROM `table1`"]
+           (-> (h/select [[:group-concat :col1]])
+               (h/from :table1)
+               (sql/format {:dialect      :mysql
+                            :quoted       true
+                            :quoted-snake true})))))
+  (testing "GROUP_CONCAT with DISTINCT"
+    (is (= ["SELECT GROUP_CONCAT(DISTINCT `col1`) FROM `table1`"]
+           (-> (h/select [[:group-concat [:distinct :col1]]])
+               (h/from :table1)
+               (sql/format {:dialect      :mysql
+                            :quoted       true
+                            :quoted-snake true})))))
+  (testing "GROUP_CONCAT with column alias"
+    (is (= ["SELECT GROUP_CONCAT(DISTINCT `col1`) AS `c1` FROM `table1`"]
+           (-> (h/select [[:group-concat [:distinct :col1]] :c1])
+               (h/from :table1)
+               (sql/format {:dialect      :mysql
+                            :quoted       true
+                            :quoted-snake true})))))
+  (testing "GROUP_CONCAT with SEPARATOR"
+    (is (= ["SELECT GROUP_CONCAT(DISTINCT `col1` SEPARATOR '|') FROM `table1`"]
+           (-> (h/select [[:group-concat [:distinct :col1] {:separator "|"}]])
+               (h/from :table1)
+               (sql/format {:dialect      :mysql
+                            :quoted       true
+                            :quoted-snake true})))))
+  (testing "GROUP_CONCAT with ORDER BY"
+    (is (= ["SELECT GROUP_CONCAT(`col1` ORDER BY `col2` DESC) FROM `table1`"]
+           (-> (h/select [[:group-concat :col1 {:order-by [[:col2 :desc]]}]])
+               (h/from :table1)
+               (sql/format {:dialect      :mysql
+                            :quoted       true
+                            :quoted-snake true})))))
+  (testing "GROUP_CONCAT with DISTINCT, ORDER BY, SEPARATOR"
+    (is (= ["SELECT GROUP_CONCAT(DISTINCT `col1` ORDER BY `col2` DESC SEPARATOR '|') FROM `table1`"]
+           (-> (h/select [[:group-concat [:distinct :col1] {:order-by  [[:col2 :desc]]
+                                                            :separator "|"}]])
+               (h/from :table1)
+               (sql/format {:dialect      :mysql
+                            :quoted       true
+                            :quoted-snake true}))))))
+
 (comment
   (run-tests))
