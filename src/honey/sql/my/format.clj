@@ -156,6 +156,7 @@
 
 (defn extend-syntax!
   []
+  (prn "extend-syntax!!!")
   (doseq [[clause {:keys [formatter before]}] custom-clauses]
     (sql/register-clause! clause formatter before))
 
